@@ -13,21 +13,17 @@ print '---'."\n\n";
 
 #####   Process input file   #####
 
-my($current_date) = '';
-my(%data_sett,%data_sett_sum,%data_sett_sum_i,$line,$d_date,$d_volume,$de);
-my($in_file_line_counter) = 0;
-
 # Find sourcefile
 print 'Searching for in-file...';
-my($in_filename) = '';
-opendir(DIR,'.');
-foreach $de (readdir(DIR)) {
+my $in_filename;
+opendir(my $DIR,'.');
+foreach my $de (readdir($DIR)) {
 	if (($de =~ /\.csv$/i) && ($de ne 'result.csv')) {
 		$in_filename = $de;
 		last;
 	}
 }
-closedir(DIR);
+closedir($DIR);
 if ($in_filename eq '') {
 	print 'ERROR, Did not find sourcefile'."\n";
 	exit;
@@ -36,12 +32,14 @@ print 'found "'.$in_filename.'"'."\n";
 
 # Process file
 print 'Working...';
-open(IN,'<'.$in_filename);
-while ($line = <IN>) {
+my(%data_sett, %data_sett_sum, %data_sett_sum_i);
+my $in_file_line_counter = 0;
+open(my $IN, '<'.$in_filename);
+while (my $line = <$IN>) {
 	
 	$in_file_line_counter++;
 
-	($d_date,undef,undef,$d_volume,undef) = split(/,/,$line);
+	my($d_date, undef, undef, $d_volume, undef) = split(/,/, $line);
 
 	if ($data_sett{$d_date}) {
 
@@ -63,7 +61,7 @@ while ($line = <IN>) {
 	}	
 }
 
-close(IN);
+close($IN);
 
 print "\n\n".$in_file_line_counter.' lines processed'."\n\n";
 
@@ -73,10 +71,7 @@ print "\n\n".$in_file_line_counter.' lines processed'."\n\n";
 
 print 'Data:'."\n\n";
 
-my(@data_keys) = keys %data_sett;
-@data_keys = sort @data_keys;
-my($key);
-foreach $key (@data_keys) {
+foreach my $key (sort keys %data_sett) {
 	print 'Date: '.$key.'   Samples: '.$data_sett_sum_i{$key}.'   Average: '.(int($data_sett_sum{$key} / $data_sett_sum_i{$key} * 24 * 1000) / 1000).' m^3/24h'."\n";
 }
 
@@ -90,11 +85,11 @@ print "\n";
 
 #####   Write to file   #####
 
-open(OUT,'>result.csv');
-foreach $key (@data_keys) {
-	print OUT $key.';'.(int($data_sett_sum{$key} / $data_sett_sum_i{$key} * 24 * 1000) / 1000).';'."\n";
+open(my $OUT, '>result.csv');
+foreach my $key (sort keys %data_sett) {
+	print $OUT $key.';'.(int($data_sett_sum{$key} / $data_sett_sum_i{$key} * 24 * 1000) / 1000).';'."\n";
 }
-close(OUT);
+close($OUT);
 
 print 'Results are written to file "result.csv".'."\n";
 
