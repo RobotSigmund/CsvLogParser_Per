@@ -1,10 +1,9 @@
-#!usr/bin/perl
 
-use warnings;
 use strict;
 use utf8;
-
 $| = 1;
+
+
 
 print 'CsvLogParser_Per - SS 2023-01-06'."\n";
 print '---'."\n\n";
@@ -12,6 +11,8 @@ print '---'."\n\n";
 
 
 #####   Process input file   #####
+
+
 
 # Find sourcefile
 print 'Searching for in-file...';
@@ -24,11 +25,10 @@ foreach my $de (readdir($DIR)) {
 	}
 }
 closedir($DIR);
-if ($in_filename eq '') {
-	print 'ERROR, Did not find sourcefile'."\n";
-	exit;
-}
+die 'ERROR, Did not find sourcefile'."\n" unless (defined $in_filename);
 print 'found "'.$in_filename.'"'."\n";
+
+
 
 # Process file
 print 'Working...';
@@ -49,10 +49,8 @@ while (my $line = <$IN>) {
 	} else {
 		
 		# Check if something in the date-field looks like a year
-		if ($d_date !~ /\d{4}/) {
-			# Probably not a valid date
-			next;
-		}
+		next unless ($d_date =~ /\d{4}/);
+
 		$data_sett{$d_date} = 1;
 		$data_sett_sum{$d_date} = $d_volume;
 		$data_sett_sum_i{$d_date} = 1;
@@ -60,7 +58,6 @@ while (my $line = <$IN>) {
 
 	}	
 }
-
 close($IN);
 
 print "\n\n".$in_file_line_counter.' lines processed'."\n\n";
@@ -68,6 +65,8 @@ print "\n\n".$in_file_line_counter.' lines processed'."\n\n";
 
 
 #####   Write to screen   #####
+
+
 
 print 'Data:'."\n\n";
 
@@ -85,6 +84,8 @@ print "\n";
 
 #####   Write to file   #####
 
+
+
 open(my $OUT, '>result.csv');
 foreach my $key (sort keys %data_sett) {
 	print $OUT $key.';'.(int($data_sett_sum{$key} / $data_sett_sum_i{$key} * 24 * 1000) / 1000).';'."\n";
@@ -97,6 +98,7 @@ print 'Results are written to file "result.csv".'."\n";
 
 #####   Done   #####
 
+
+
 print "\n".'<ENTER> to exit!';
 <STDIN>;
-exit;
